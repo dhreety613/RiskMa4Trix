@@ -1,0 +1,299 @@
+# Prior annual probability (p0) and prior strength (n0, pseudo-
+# observations) per risk category, feeding the Beta-Bernoulli posterior
+# in scoring/probability.py: alpha0 = p0*n0, beta0 = (1-p0)*n0.
+#
+# Honesty note (CLAUDE.md hard rule - every assumption needs a source):
+# almost none of these are published base rates. A handful cite a real
+# reference point (NBER recession frequency, breach-survey frequency);
+# the rest are directional judgment calls, marked "assumption" below.
+# n0=10 (the spec's stated default) unless there's a specific reason to
+# trust the prior more (cite it) or less.
+
+- slug: competition_pricing
+  p0: 0.35
+  n0: 10
+  source: assumption
+  rationale: "Competitive pressure is close to a constant for most industries - moderate-high annual likelihood of some material effect."
+
+- slug: demand_volatility
+  p0: 0.25
+  n0: 10
+  source: assumption
+  rationale: Demand swings are common but not universal in a given year.
+
+- slug: macroeconomic_conditions
+  p0: 0.15
+  n0: 15
+  source: "NBER recession dating (US recessions ~15% of years since 1950)"
+  rationale: Used as a rough proxy for "materially adverse macro year," not a precise match to any one company.
+
+- slug: commodity_prices
+  p0: 0.20
+  n0: 10
+  source: assumption
+  rationale: Relevant mainly to materials/industrials/consumer; kept moderate as a cross-sector default.
+
+- slug: customer_credit_risk
+  p0: 0.15
+  n0: 10
+  source: assumption
+  rationale: Material bad-debt/counterparty events are not every-year occurrences for most non-financial filers.
+
+- slug: credit_rating
+  p0: 0.08
+  n0: 10
+  source: assumption
+  rationale: Rating actions are infrequent relative to a company's full debt life.
+
+- slug: liquidity_risk
+  p0: 0.08
+  n0: 10
+  source: assumption
+  rationale: Acute liquidity stress is rare for investment-grade large caps; this taxonomy skews toward such filers.
+
+- slug: capital_access
+  p0: 0.08
+  n0: 10
+  source: assumption
+
+- slug: debt_covenants
+  p0: 0.05
+  n0: 10
+  source: assumption
+  rationale: Covenant breaches are uncommon outside distressed credits.
+
+- slug: foreign_exchange
+  p0: 0.30
+  n0: 10
+  source: assumption
+  rationale: Multinationals report FX-driven effects on results most years; kept elevated.
+
+- slug: foreign_operations
+  p0: 0.20
+  n0: 10
+  source: assumption
+
+- slug: interest_rate
+  p0: 0.25
+  n0: 10
+  source: assumption
+  rationale: Rate moves affect most levered balance sheets most years to some degree.
+
+- slug: regulatory_compliance
+  p0: 0.30
+  n0: 10
+  source: assumption
+  rationale: Broad category - some regulatory friction is close to constant for large, multi-jurisdiction filers.
+
+- slug: tax_law
+  p0: 0.15
+  n0: 10
+  source: assumption
+
+- slug: trade_policy
+  p0: 0.15
+  n0: 10
+  source: assumption
+  rationale: Episodic (tariff cycles), not a steady annual probability - treated as moderate-low by default.
+
+- slug: antitrust
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: data_privacy
+  p0: 0.15
+  n0: 10
+  source: assumption
+
+- slug: environmental_regulation
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: cybersecurity
+  p0: 0.12
+  n0: 15
+  source: "Directionally informed by industry breach-frequency surveys (e.g. IBM Cost of a Data Breach) reporting double-digit percent annual incidence for large organizations - not a literal match to this definition of 'material.'"
+  rationale: Kept well below survey-reported ANY-incident rates since this category means a MATERIAL breach, which is rarer.
+
+- slug: data_security
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: supply_chain_disruption
+  p0: 0.20
+  n0: 10
+  source: assumption
+
+- slug: supplier_concentration
+  p0: 0.12
+  n0: 10
+  source: assumption
+
+- slug: manufacturing_concentration
+  p0: 0.12
+  n0: 10
+  source: assumption
+
+- slug: raw_material_availability
+  p0: 0.12
+  n0: 10
+  source: assumption
+
+- slug: customer_concentration
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: geographic_concentration
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: product_concentration
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: litigation_general
+  p0: 0.55
+  n0: 15
+  source: assumption
+  rationale: Large-cap 10-Ks routinely disclose ongoing litigation of some kind nearly every year - kept high but well short of certainty.
+
+- slug: ip_litigation
+  p0: 0.15
+  n0: 10
+  source: assumption
+
+- slug: product_liability
+  p0: 0.12
+  n0: 10
+  source: assumption
+
+- slug: climate_physical
+  p0: 0.08
+  n0: 10
+  source: assumption
+
+- slug: climate_transition
+  p0: 0.08
+  n0: 10
+  source: assumption
+
+- slug: natural_disaster
+  p0: 0.05
+  n0: 10
+  source: assumption
+  rationale: Low annual probability of a MATERIAL (not just any) natural-disaster effect for a given filer.
+
+- slug: geopolitical_instability
+  p0: 0.15
+  n0: 10
+  source: assumption
+
+- slug: sanctions_export_controls
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: political_instability_em
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: key_personnel
+  p0: 0.08
+  n0: 10
+  source: assumption
+
+- slug: labor_relations
+  p0: 0.08
+  n0: 10
+  source: assumption
+
+- slug: talent_acquisition
+  p0: 0.15
+  n0: 10
+  source: assumption
+
+- slug: technological_obsolescence
+  p0: 0.12
+  n0: 10
+  source: assumption
+
+- slug: ai_disruption
+  p0: 0.12
+  n0: 10
+  source: assumption
+  rationale: Elevated recently as a disclosed theme; still an assumption, not a measured frequency.
+
+- slug: disruptive_entrants
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: business_interruption
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: quality_defects
+  p0: 0.08
+  n0: 10
+  source: assumption
+
+- slug: outsourcing_third_party
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: internal_controls
+  p0: 0.03
+  n0: 10
+  source: assumption
+  rationale: Material weaknesses are rare, disclosed events, not a routine annual occurrence.
+
+- slug: goodwill_impairment
+  p0: 0.08
+  n0: 10
+  source: assumption
+
+- slug: pension_obligations
+  p0: 0.05
+  n0: 10
+  source: assumption
+
+- slug: brand_reputation
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: esg_reputation
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: acquisition_integration
+  p0: 0.10
+  n0: 10
+  source: assumption
+  rationale: Conditional on actually doing M&A in a given year - 0.10 as a cross-sector unconditional average.
+
+- slug: international_expansion
+  p0: 0.08
+  n0: 10
+  source: assumption
+
+- slug: ip_protection
+  p0: 0.10
+  n0: 10
+  source: assumption
+
+- slug: pandemic_health
+  p0: 0.03
+  n0: 15
+  source: "Rough base rate from pandemic-scale event frequency over the last century (roughly one per few decades)"
+  rationale: Applied as an annual probability, not a per-event one.

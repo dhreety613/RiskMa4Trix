@@ -108,6 +108,7 @@ def extract_for_company(db: Session, company: Company) -> None:
     from app.clean.dedupe import dedupe_risks_for_filing
     from app.drift.pipeline import compute_drift_for_company
     from app.drift.tone import compute_tone_for_filing
+    from app.scoring.pipeline import score_company_risks
 
     filings = db.query(Filing).filter(Filing.company_id == company.id).all()
     for filing in filings:
@@ -124,7 +125,12 @@ def extract_for_company(db: Session, company: Company) -> None:
     compute_drift_for_company(db, company)
     db.commit()
 
+    # Before scoring: probability.py's evidence_months reads
+    # news_risk_links, so news needs to be classified/linked first.
     classify_and_link_news(db, company)
+    db.commit()
+
+    score_company_risks(db, company)
     db.commit()
 
 

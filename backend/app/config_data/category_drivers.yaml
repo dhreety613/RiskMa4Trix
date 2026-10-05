@@ -1,0 +1,297 @@
+# Maps each risk category to an impact driver for scoring/impact.py.
+#
+# driver: "interest_rate" uses total debt directly (we actually ingest
+#   this) with an assumed rate-move shock; everything else uses
+#   "revenue_share" - exposure = revenue * revenue_share_assumption,
+#   shock = the company's own historical 95th-percentile 1yr drawdown
+#   (price_stats.dd95_1y) as a "how bad can things get for this company"
+#   severity proxy.
+#
+# Honesty note: this is a deliberate simplification given what's
+# actually ingested (CLAUDE.md: no foreign_revenue_share, no top-
+# customer revenue share, no floating-vs-fixed debt split - Phase 2
+# didn't pull those XBRL tags). A sharper model would drive FX impact
+# off actual foreign revenue share and concentration impact off actual
+# customer concentration; this uses the same revenue_share_assumption
+# mechanism for all of them instead and documents it as a fallback
+# every time (RiskScore.fallbacks). revenue_share_assumption values
+# below are directional judgment, not measured - bigger for categories
+# where a bad year plausibly touches a large slice of revenue (supply
+# chain, concentration), smaller where it's more contained (one lawsuit,
+# one pension plan).
+
+- slug: competition_pricing
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: demand_volatility
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: macroeconomic_conditions
+  driver: revenue_share
+  revenue_share_assumption: 0.20
+  source: assumption
+
+- slug: commodity_prices
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: customer_credit_risk
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: credit_rating
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: liquidity_risk
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: capital_access
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: debt_covenants
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: foreign_exchange
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+  rationale: Would ideally be foreign_revenue_share * revenue - not ingested, falls back to this flat assumption.
+
+- slug: foreign_operations
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: interest_rate
+  driver: interest_rate
+  rate_shock_bps: 200
+  source: assumption
+  rationale: Impact$ = total_debt * 200bps, a simple parallel-shift approximation of higher interest expense, not a duration-matched model.
+
+- slug: regulatory_compliance
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: tax_law
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: trade_policy
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: antitrust
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: data_privacy
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: environmental_regulation
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: cybersecurity
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: data_security
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: supply_chain_disruption
+  driver: revenue_share
+  revenue_share_assumption: 0.25
+  source: assumption
+  rationale: A real supply disruption can touch a large share of production/revenue.
+
+- slug: supplier_concentration
+  driver: revenue_share
+  revenue_share_assumption: 0.25
+  source: assumption
+
+- slug: manufacturing_concentration
+  driver: revenue_share
+  revenue_share_assumption: 0.25
+  source: assumption
+
+- slug: raw_material_availability
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: customer_concentration
+  driver: revenue_share
+  revenue_share_assumption: 0.20
+  source: assumption
+  rationale: Would ideally be top-customer revenue share - not ingested, falls back to this flat assumption.
+
+- slug: geographic_concentration
+  driver: revenue_share
+  revenue_share_assumption: 0.20
+  source: assumption
+
+- slug: product_concentration
+  driver: revenue_share
+  revenue_share_assumption: 0.20
+  source: assumption
+
+- slug: litigation_general
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+  rationale: Most litigation, even when disclosed every year, resolves at a modest fraction of revenue/EBITDA.
+
+- slug: ip_litigation
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: product_liability
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: climate_physical
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: climate_transition
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: natural_disaster
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: geopolitical_instability
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: sanctions_export_controls
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: political_instability_em
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: key_personnel
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: labor_relations
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: talent_acquisition
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: technological_obsolescence
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: ai_disruption
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: disruptive_entrants
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: business_interruption
+  driver: revenue_share
+  revenue_share_assumption: 0.15
+  source: assumption
+
+- slug: quality_defects
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: outsourcing_third_party
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: internal_controls
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: goodwill_impairment
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: pension_obligations
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: brand_reputation
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: esg_reputation
+  driver: revenue_share
+  revenue_share_assumption: 0.05
+  source: assumption
+
+- slug: acquisition_integration
+  driver: revenue_share
+  revenue_share_assumption: 0.10
+  source: assumption
+
+- slug: international_expansion
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: ip_protection
+  driver: revenue_share
+  revenue_share_assumption: 0.08
+  source: assumption
+
+- slug: pandemic_health
+  driver: revenue_share
+  revenue_share_assumption: 0.25
+  source: assumption
+  rationale: A pandemic-scale event plausibly touches a large share of operations across the board.

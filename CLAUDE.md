@@ -260,7 +260,35 @@ doing again.
   plausible 1-4% range for formal corporate risk language. Drift
   dashboard itself (frontend heatmap/list/trend line) is Phase 7's job,
   not built yet - this phase is the API-less backend computation only.
-- [ ] Phase 6 - Scoring (probability, impact, zones)
+- [x] Phase 6 - Scoring: probability.py (Beta-Bernoulli - prior per
+  category from category_priors.yaml, evidence = distinct months in the
+  trailing 12 with >=1 linked news item, + a drift pseudo-count when the
+  risk's most recent appearance was flagged "new"). impact.py (exposure
+  x shock -> Impact$ -> %EBITDA, fallback %market-cap; log-scaled 0-1
+  impact_norm + 1-5 band). zones.py (4T from (P, impact_norm), thresholds
+  configurable - P>=0.20, impact_norm>=0.50 by default, judgment calls
+  not fit to data). Every category_priors.yaml/category_drivers.yaml
+  entry has a source/rationale field (mostly "assumption" - a few cite
+  a real reference point like NBER recession frequency).
+
+  Key simplification, documented rather than hidden: category_drivers.yaml
+  only has two driver types (`interest_rate`, using actual total_debt;
+  `revenue_share` for everything else, using an assumed revenue-share %
+  x the company's own historical dd95_1y as a generic severity proxy).
+  The spec's richer per-category drivers (foreign revenue share for FX,
+  top-customer share for concentration, floating-rate debt specifically)
+  aren't usable because Phase 2 never ingested those specific XBRL
+  facts - every risk score's `fallbacks` field records this each time it
+  fires, so the UI's "assumption-driven" badge is honest rather than
+  silent.
+
+  Verified against real re-ingested AAPL data (FY2025 filing, 20 active
+  risks, all 20 scored): expected-loss figures landed at a plausible
+  scale (hundreds of millions to ~$1.2B, proportioned to Apple's
+  ~$135B EBITDA); zones split tolerate/transfer/treat with none hitting
+  terminate - consistent with no current news evidence or "new"-drift
+  risks pushing any single risk's probability high enough to combine
+  with high impact simultaneously.
 - [ ] Phase 7 - Matrix + risk cards (frontend + API)
 - [ ] Phase 8 - Monte Carlo + mitigations
 - [ ] Phase 9 - Deploy (Render) + docs (README, METHODOLOGY, VALIDATION)
