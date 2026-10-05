@@ -97,7 +97,33 @@ doing again.
   frontend scaffold with a live health check. Verified: migration applies
   cleanly, pgvector + HNSW indexes exist, backend tests/ruff pass, frontend
   tsc/build pass.
-- [ ] Phase 2 - Ingestion (EDGAR, financials, prices, news, seed_companies.py)
+- [x] Phase 2 - Ingestion (EDGAR, financials, prices, news,
+  seed_companies.py). Verified end-to-end against real data (AAPL, MSFT)
+  both via the local venv and the actual running Docker container:
+  CIK lookup, 5yr 10-K listing, Item 1A/7/7A extraction, XBRL financial
+  facts, yfinance price stats, Google News RSS, idempotent re-ingest (no
+  duplicate rows). Two real bugs found and fixed while testing against
+  live AAPL filings - worth knowing about if this code is touched again:
+  1. `edgar.extract_sections`: naively taking the textually-last
+     occurrence of "Item 1A"/"Item 7" picks up prose cross-references
+     ("as described in Item 1A of this Form 10-K...") instead of the
+     real section header. Fixed by requiring the canonical title
+     ("Risk Factors", "Management's Discussion and Analysis", etc) to
+     immediately follow the item number, then picking whichever
+     candidate occurrence produces the LONGEST section (the real body
+     runs for thousands of chars; a table-of-contents entry is only a
+     few dozen chars before the next TOC line). Regression test:
+     `tests/test_edgar_extract.py`.
+  2. `yfinance`'s `FastInfo.get("market_cap")` silently returns `None`
+     (wrong key - it's camelCase `marketCap`) instead of raising, so the
+     bug doesn't surface as an error, just silently-missing data.
+  Also: SEC's own ticker->CIK map (`company_tickers.json`) can point a
+  ticker at a *newly restructured successor entity* whose XBRL history
+  only goes back to its creation date (e.g. XOM -> "ExxonMobil Holdings
+  Corp", CIK 2115436, with no FY2023/2024 10-K facts at all under that
+  CIK). That's not a bug - financial facts correctly come back `None`
+  for those years, which is the honest/pending behavior the hard rules
+  ask for, not something to "fix" by chasing predecessor CIKs.
 - [ ] Phase 3 - Risk extraction (splitter, taxonomy, classifier, titles,
   news classification, validation)
 - [ ] Phase 4 - Cleaning (dedupe, boilerplate)

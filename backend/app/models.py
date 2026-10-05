@@ -16,6 +16,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -79,6 +80,7 @@ class FinancialFact(Base):
 
 class PriceStat(Base):
     __tablename__ = "price_stats"
+    __table_args__ = (UniqueConstraint("company_id", "as_of", name="uq_price_stat_company_asof"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     company_id: Mapped[int] = mapped_column(ForeignKey("companies.id"), index=True)
@@ -124,6 +126,14 @@ class Risk(Base):
 
 class RiskEmbedding(Base):
     __tablename__ = "risk_embeddings"
+    __table_args__ = (
+        Index(
+            "ix_risk_embeddings_embedding_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+    )
 
     risk_id: Mapped[int] = mapped_column(ForeignKey("risks.id"), primary_key=True)
     embedding: Mapped[Any] = mapped_column(Vector(EMBED_DIM))
@@ -133,6 +143,14 @@ class RiskEmbedding(Base):
 
 class NewsItem(Base):
     __tablename__ = "news_items"
+    __table_args__ = (
+        Index(
+            "ix_news_items_embedding_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     company_id: Mapped[int] = mapped_column(ForeignKey("companies.id"), index=True)
