@@ -54,6 +54,35 @@ def test_extracts_real_body_not_toc_or_cross_reference():
     assert "Item 8" not in sections["item7a_text"]
 
 
+# Mimics a second real failure mode found against a live NVIDIA 10-K:
+# an early cross-reference restates the title with NO punctuation
+# boundary at all ("Item 1A. Risk Factors for additional information
+# regarding..."), continuing straight into lowercase prose on the same
+# line. Because it sits BEFORE the real header but shares the same
+# later end-boundary (the next Item 1B), it produces a LONGER span than
+# the real header under a naive "longest span wins" rule - this early
+# false start must be rejected at the candidate stage instead.
+CROSS_REFERENCE_NO_PUNCTUATION_10K = """
+Item 1. Business
+See Item 1A. Risk Factors for additional information regarding our
+competitive position before you decide things.
+
+Item 1A. Risk Factors
+The following risk factors should be considered. """ + ("Risk prose. " * 500) + """
+
+Item 1B. Unresolved Staff Comments
+None.
+"""
+
+
+def test_rejects_cross_reference_with_no_punctuation_boundary():
+    sections = extract_sections(CROSS_REFERENCE_NO_PUNCTUATION_10K)
+
+    assert sections["item1a_text"].startswith("Item 1A. Risk Factors")
+    assert "The following risk factors should be considered" in sections["item1a_text"]
+    assert "additional information regarding" not in sections["item1a_text"]
+
+
 def test_missing_section_returns_empty_string():
     sections = extract_sections("Item 1. Business\nNothing else here.")
     assert sections["item1a_text"] == ""

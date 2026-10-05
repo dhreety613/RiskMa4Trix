@@ -4,6 +4,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal, get_db
+from app.extract.pipeline import extract_for_company
 from app.ingest.pipeline import ingest_company_full
 from app.models import Company, Filing
 from app.schemas import CompanyOut, FilingOut, IngestAck
@@ -16,7 +17,8 @@ router = APIRouter(prefix="/companies", tags=["companies"])
 def _run_ingest_background(ticker: str) -> None:
     db = SessionLocal()
     try:
-        ingest_company_full(db, ticker)
+        company = ingest_company_full(db, ticker)
+        extract_for_company(db, company)
     except Exception:
         logger.exception(f"Background ingest failed for {ticker}")
     finally:

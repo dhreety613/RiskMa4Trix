@@ -107,13 +107,9 @@ doing again.
   1. `edgar.extract_sections`: naively taking the textually-last
      occurrence of "Item 1A"/"Item 7" picks up prose cross-references
      ("as described in Item 1A of this Form 10-K...") instead of the
-     real section header. Fixed by requiring the canonical title
-     ("Risk Factors", "Management's Discussion and Analysis", etc) to
-     immediately follow the item number, then picking whichever
-     candidate occurrence produces the LONGEST section (the real body
-     runs for thousands of chars; a table-of-contents entry is only a
-     few dozen chars before the next TOC line). Regression test:
-     `tests/test_edgar_extract.py`.
+     real section header. The exact fix evolved further in Phase 3 (see
+     below) - this first pass (require canonical title immediately
+     after + pick the longest span) was NOT the final version.
   2. `yfinance`'s `FastInfo.get("market_cap")` silently returns `None`
      (wrong key - it's camelCase `marketCap`) instead of raising, so the
      bug doesn't surface as an error, just silently-missing data.
@@ -124,8 +120,90 @@ doing again.
   CIK). That's not a bug - financial facts correctly come back `None`
   for those years, which is the honest/pending behavior the hard rules
   ask for, not something to "fix" by chasing predecessor CIKs.
-- [ ] Phase 3 - Risk extraction (splitter, taxonomy, classifier, titles,
-  news classification, validation)
+- [x] Phase 3 - Risk extraction: splitter.py, taxonomy.yaml (50
+  categories), embedder.py (fastembed), classifier.py (cosine kNN vs
+  per-example vectors, NOT per-category centroids - see below), titles.py
+  (template default, optional LLM polish), news classification + linking,
+  label_validation.py/eval_classifier.py (genuinely pending - see
+  docs/VALIDATION.md, no self-labeled numbers written).
+
+  `edgar.extract_sections`'s header-boundary logic (from Phase 2) turned
+  out to need THREE rounds of fixes before it held up across 5 real,
+  structurally different filers (AAPL, NVDA, MSFT, JPM, JNJ) - each
+  fix broke on the next filer's own HTML quirk, so if this is touched
+  again, re-run the same check across multiple diverse tickers, not
+  just the one that prompted the change:
+  1. **AAPL**: a cross-reference anywhere in the document that restates
+     the title right after the item number ("as described in Item 1A of
+     this Form 10-K...") gets mistaken for the real header by a naive
+     "last occurrence" search. Fix: require the canonical title text to
+     immediately follow the item number.
+  2. **NVIDIA**: that fix alone isn't enough - an EARLY cross-reference
+     that also happens to restate the title (with a comma, or with NO
+     punctuation at all before continuing into lowercase prose) shares
+     the same later end-boundary as the real header, so it produces a
+     LONGER span and wins under "longest span wins". Fix: also require
+     that whatever immediately follows the matched title is a line
+     break (or the bold-sentinel, or a single trailing period/colon then
+     a line break) - a real header is always alone on its own line;
+     prose never is.
+  3. **Microsoft**: its inline-XBRL renderer sometimes splits a single
+     word's bolding across TWO adjacent spans, including mid-word
+     ("RISK" rendered as "RIS" + a fresh bold span + "K", which
+     flattens to "RIS\n\x01\n\x01\nK FACTORS") - breaking the literal
+     "risk factors" match entirely. Fix: match titles against a
+     SQUASHED (alphanumeric-only, whitespace/punctuation/bold-sentinels
+     stripped) version of the lookahead text, with a position map back
+     to the original text so the line-break boundary check (point 2)
+     still works on the real, unsquashed text.
+  4. **JPMorgan**: its real header is "Item 1A. Risk Factors.\nThe
+     following..." - a trailing PERIOD between the title and the line
+     break, which the line-break check (point 2) didn't tolerate. Fix:
+     skip at most one trailing period/colon (plus stray non-breaking
+     spaces) before checking for the line break.
+  5. Item 8's canonical title varies by filer ("Financial Statements"
+     vs "...and Supplementary Data") - matching only the short form left
+     real title text before the real line break for filers using the
+     long form, which looked exactly like a cross-reference and got
+     rejected, silently breaking Item 7A's end-of-section boundary (item
+     7A has no OTHER end marker, so it fell back to end-of-document).
+     Fix: try multiple known title variants per item, longest first.
+
+  Known remaining limitation: `item7_text`/`item7a_text` extraction is
+  noticeably less robust than `item1a_text` across filers (e.g. JPM's
+  item7 came back only 395 chars; JNJ's came back empty) - likely more
+  filer-specific title/formatting variance in that part of the document
+  that the same fixes above haven't been checked against as thoroughly.
+  Not fixed further for now because `item1a_text` is the only one
+  consumed by the actual extraction pipeline (splitter -> classifier);
+  item7/item7a are stored on `Filing` only for human context.
+
+  Classifier-specific findings:
+  - Centroid-of-examples-per-category (averaging 5-8 example embeddings
+    into one vector per category) let one generic-sounding category
+    ("credit risk") win on paragraphs that had nothing to do with it -
+    switched to max-similarity-against-any-single-example instead.
+  - The embedding model's baseline/noise similarity floor is higher than
+    a naive guess: pure gibberish still scored ~0.58 against the
+    taxonomy. `UNCLASSIFIED_THRESHOLD` is 0.6, set from that observation,
+    not from a labeled validation set (still pending).
+  - News-risk linking needs BOTH a category match AND embedding
+    similarity above threshold (CLAUDE.md's own spec says this
+    explicitly) - similarity alone, without the category filter, linked
+    one ordinary day's news to the majority of all risk x news pairs
+    across 65 risks and 30 headlines, which is useless as "evidence for
+    this specific risk."
+
+  Real concurrency bug found and fixed: `ensure_taxonomy_seeded`'s
+  original check-then-insert pattern raised `UniqueViolation` when two
+  `/companies/{ticker}/ingest` requests' BackgroundTasks happened to run
+  close together (confirmed with AAPL + JPM queued back-to-back) - both
+  background tasks query "does this slug exist?", both see no, both try
+  to INSERT. Fixed with an atomic `INSERT ... ON CONFLICT DO UPDATE`
+  instead. `ingest/pipeline.py`'s `upsert_company` has the exact same
+  check-then-insert shape and would have the same race for two
+  concurrent ingests of the SAME ticker - not hit in testing, not fixed
+  yet, worth the same treatment if it ever actually happens.
 - [ ] Phase 4 - Cleaning (dedupe, boilerplate)
 - [ ] Phase 5 - Risk drift (matcher, tone, dashboard)
 - [ ] Phase 6 - Scoring (probability, impact, zones)

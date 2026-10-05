@@ -10,6 +10,7 @@ import logging
 import sys
 
 from app.db import SessionLocal
+from app.extract.pipeline import extract_for_company
 from app.ingest.pipeline import TickerNotFound, ingest_company_full
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -42,7 +43,9 @@ def main() -> None:
         db = SessionLocal()
         try:
             logger.info(f"Ingesting {ticker}...")
-            ingest_company_full(db, ticker, years_back=args.years)
+            company = ingest_company_full(db, ticker, years_back=args.years)
+            logger.info(f"Extracting risks for {ticker}...")
+            extract_for_company(db, company)
         except TickerNotFound:
             logger.error(f"{ticker}: no CIK found, skipping")
             failures.append(ticker)

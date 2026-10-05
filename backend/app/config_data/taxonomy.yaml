@@ -1,0 +1,452 @@
+# Risk taxonomy used by extract/classifier.py for cosine-kNN
+# classification of 10-K risk paragraphs (and news headlines).
+#
+# Each category's `examples` are embedded once at classifier load time
+# and compared against a risk paragraph's embedding - NOT free-text LLM
+# classification (see CLAUDE.md hard rules).
+
+- slug: competition_pricing
+  group: market
+  name: Competitive Pressure & Pricing
+  description: Intense competition eroding market share, pricing power, or margins.
+  examples:
+    - Our products and services are offered in highly competitive markets with aggressive price competition.
+    - Competitors with greater resources could introduce lower-priced alternatives.
+    - Downward pressure on gross margins due to competitive dynamics.
+    - New entrants could capture market share faster than we can respond.
+    - Price wars in our industry have compressed margins industry-wide.
+
+- slug: demand_volatility
+  group: market
+  name: Demand Volatility
+  description: Fluctuations in customer demand tied to economic cycles or product cycles.
+  examples:
+    - Demand for our products is highly seasonal and difficult to forecast.
+    - A slowdown in consumer spending could materially reduce our revenue.
+    - Our sales are sensitive to macroeconomic conditions and consumer confidence.
+    - Product cycle timing creates significant quarter-to-quarter revenue variability.
+
+- slug: macroeconomic_conditions
+  group: market
+  name: Macroeconomic Conditions
+  description: Broad economic conditions - inflation, recession, unemployment - affecting the business.
+  examples:
+    - Adverse macroeconomic conditions, including inflation and rising interest rates, could harm our business.
+    - A global or regional recession could significantly reduce demand for our products.
+    - Unfavorable economic conditions in key markets have historically reduced our revenue.
+
+- slug: commodity_prices
+  group: market
+  name: Commodity Price Risk
+  description: Exposure to volatile input commodity or raw material prices.
+  examples:
+    - Fluctuations in the price of key raw materials could increase our cost of goods sold.
+    - We are exposed to volatility in energy and commodity prices.
+    - Rising input costs that we cannot pass through to customers would compress margins.
+
+- slug: customer_credit_risk
+  group: credit
+  name: Customer / Counterparty Credit Risk
+  description: Risk that customers or counterparties fail to pay amounts owed.
+  examples:
+    - We are exposed to credit risk on trade accounts receivable from customers.
+    - A customer's bankruptcy or financial distress could result in significant bad debt expense.
+    - Counterparty default on derivative contracts could cause financial losses.
+
+- slug: credit_rating
+  group: credit
+  name: Credit Rating Risk
+  description: Risk of credit rating downgrade raising borrowing costs or triggering covenants.
+  examples:
+    - A downgrade of our credit rating could increase our cost of capital.
+    - Rating agency actions could trigger acceleration clauses in our debt agreements.
+
+- slug: liquidity_risk
+  group: liquidity
+  name: Liquidity Risk
+  description: Risk of being unable to meet short-term obligations or fund operations.
+  examples:
+    - We may not have sufficient liquidity to meet our operating and debt service obligations.
+    - Inability to access capital markets on favorable terms could constrain our liquidity.
+    - A disruption in credit markets could impair our ability to refinance maturing debt.
+
+- slug: capital_access
+  group: liquidity
+  name: Access to Capital
+  description: Risk of being unable to raise debt or equity capital on acceptable terms.
+  examples:
+    - We may be unable to raise additional capital on acceptable terms when needed.
+    - Volatile capital markets could limit our ability to issue new debt or equity.
+
+- slug: debt_covenants
+  group: liquidity
+  name: Debt Covenant Risk
+  description: Risk of breaching financial covenants in credit agreements.
+  examples:
+    - A breach of covenants under our credit facility could result in acceleration of debt.
+    - Our debt agreements contain restrictive covenants limiting operating flexibility.
+
+- slug: foreign_exchange
+  group: fx
+  name: Foreign Exchange Risk
+  description: Exposure to currency fluctuations affecting revenue, costs, or translated results.
+  examples:
+    - Fluctuations in foreign currency exchange rates could adversely affect our reported results.
+    - A significant portion of our revenue is generated outside the U.S. and exposed to currency risk.
+    - Strengthening of the U.S. dollar has historically reduced the value of foreign earnings.
+
+- slug: foreign_operations
+  group: fx
+  name: Foreign Operations Risk
+  description: Operational risks specific to conducting business in foreign jurisdictions.
+  examples:
+    - Our international operations are subject to risks not present in domestic operations.
+    - Operating in foreign countries exposes us to local regulatory and economic instability.
+
+- slug: interest_rate
+  group: interest_rate
+  name: Interest Rate Risk
+  description: Exposure to changes in interest rates on debt, investments, or cash.
+  examples:
+    - Changes in interest rates could increase the cost of our variable-rate debt.
+    - Our investment portfolio is subject to interest rate risk.
+    - Rising rates could increase our interest expense on floating-rate borrowings.
+
+- slug: regulatory_compliance
+  group: regulatory
+  name: Regulatory Compliance
+  description: General risk of new or changing laws/regulations increasing cost or restricting operations.
+  examples:
+    - We are subject to extensive regulation that could change in ways adverse to our business.
+    - Compliance with evolving laws and regulations could increase our operating costs.
+    - Failure to comply with applicable regulations could result in fines or sanctions.
+
+- slug: tax_law
+  group: regulatory
+  name: Tax Law Changes
+  description: Risk from changes in tax law or tax rates across jurisdictions.
+  examples:
+    - Changes in tax laws or their interpretation could adversely affect our effective tax rate.
+    - New international tax regimes could increase our overall tax liability.
+
+- slug: trade_policy
+  group: regulatory
+  name: Trade Policy & Tariffs
+  description: Risk from tariffs, export controls, or trade restrictions.
+  examples:
+    - Tariffs imposed on imported goods could increase our costs significantly.
+    - Changes in trade policy between the U.S. and other countries could disrupt our supply chain.
+
+- slug: antitrust
+  group: regulatory
+  name: Antitrust / Competition Law
+  description: Risk from antitrust investigations or competition-law enforcement.
+  examples:
+    - We are subject to antitrust and competition law scrutiny in multiple jurisdictions.
+    - Regulatory investigations into our business practices could result in fines or required changes to our business model.
+
+- slug: data_privacy
+  group: regulatory
+  name: Data Privacy Regulation
+  description: Risk from data protection and privacy laws (GDPR, CCPA, etc).
+  examples:
+    - Compliance with data privacy regulations such as GDPR could increase costs and restrict data use.
+    - Failure to comply with privacy laws could result in significant penalties.
+
+- slug: environmental_regulation
+  group: regulatory
+  name: Environmental Regulation
+  description: Risk from environmental laws, emissions standards, and remediation obligations.
+  examples:
+    - Environmental regulations could require costly changes to our operations.
+    - We may incur significant costs related to environmental remediation.
+
+- slug: cybersecurity
+  group: cyber
+  name: Cybersecurity Breach
+  description: Risk of cyberattacks, data breaches, or unauthorized system access.
+  examples:
+    - A cybersecurity breach could result in unauthorized access to sensitive data.
+    - Cyberattacks on our systems could disrupt operations and damage our reputation.
+    - We have been and may continue to be the target of sophisticated cyberattacks.
+
+- slug: data_security
+  group: cyber
+  name: Data Security & IT Failure
+  description: Risk of IT system failures, outages, or loss of critical data.
+  examples:
+    - A significant failure of our information technology systems could disrupt our operations.
+    - Loss of customer data due to a system failure could harm our reputation and result in liability.
+
+- slug: supply_chain_disruption
+  group: supply_chain
+  name: Supply Chain Disruption
+  description: Risk of disruption to the supply of components, materials, or logistics.
+  examples:
+    - Disruptions in our supply chain could delay production and harm our results.
+    - Natural disasters or geopolitical events could disrupt our manufacturing supply chain.
+    - We rely on third-party logistics providers whose failure could delay product delivery.
+
+- slug: supplier_concentration
+  group: supply_chain
+  name: Single-Source Supplier Dependency
+  description: Dependency on a limited number of suppliers or manufacturing partners.
+  examples:
+    - We depend on a limited number of suppliers for key components.
+    - Loss of a sole-source supplier could materially disrupt production.
+
+- slug: manufacturing_concentration
+  group: supply_chain
+  name: Manufacturing Concentration
+  description: Geographic or facility concentration of manufacturing creating single points of failure.
+  examples:
+    - Substantially all of our manufacturing is performed by outsourcing partners located in a limited number of countries.
+    - A disruption at a key manufacturing facility could materially affect our ability to ship products.
+
+- slug: raw_material_availability
+  group: supply_chain
+  name: Raw Material Availability
+  description: Risk of shortage or unavailability of key raw materials or components.
+  examples:
+    - Shortages of key components could constrain our ability to meet customer demand.
+    - Availability of certain raw materials is limited and subject to significant price volatility.
+
+- slug: customer_concentration
+  group: concentration
+  name: Customer Concentration
+  description: Revenue dependency on a small number of large customers.
+  examples:
+    - A small number of customers account for a significant portion of our revenue.
+    - Loss of a major customer could have a material adverse effect on our results.
+
+- slug: geographic_concentration
+  group: concentration
+  name: Geographic Concentration
+  description: Revenue or operational dependency concentrated in one country or region.
+  examples:
+    - A substantial portion of our revenue is generated in a single geographic market.
+    - Adverse conditions in our largest market could disproportionately affect our results.
+
+- slug: product_concentration
+  group: concentration
+  name: Product Concentration
+  description: Revenue dependency on a small number of products or product lines.
+  examples:
+    - A significant portion of our revenue is derived from a single product line.
+    - Declining demand for our flagship product could materially harm our results.
+
+- slug: litigation_general
+  group: litigation
+  name: General Litigation
+  description: Exposure to lawsuits, claims, or legal proceedings generally.
+  examples:
+    - We are subject to various legal proceedings and claims that could result in significant liability.
+    - Adverse outcomes in litigation could have a material adverse effect on our financial condition.
+
+- slug: ip_litigation
+  group: litigation
+  name: Intellectual Property Litigation
+  description: Risk of IP infringement claims against the company or by the company.
+  examples:
+    - We may be subject to claims of patent or intellectual property infringement.
+    - Litigation to protect our intellectual property rights could be costly and time-consuming.
+
+- slug: product_liability
+  group: litigation
+  name: Product Liability
+  description: Risk of claims arising from product defects or safety issues.
+  examples:
+    - Product liability claims could result in significant costs and reputational harm.
+    - A product recall could materially affect our financial results and brand reputation.
+
+- slug: climate_physical
+  group: climate
+  name: Climate Physical Risk
+  description: Physical risk from climate change - extreme weather, sea level rise, resource scarcity.
+  examples:
+    - Extreme weather events linked to climate change could disrupt our operations or supply chain.
+    - Rising sea levels and increased storm frequency could damage our facilities.
+
+- slug: climate_transition
+  group: climate
+  name: Climate Transition Risk
+  description: Risk from the transition to a lower-carbon economy - policy, technology, market shifts.
+  examples:
+    - Transition to a low-carbon economy could require significant capital investment.
+    - New carbon pricing regulations could increase our operating costs.
+
+- slug: natural_disaster
+  group: climate
+  name: Natural Disaster
+  description: Risk of earthquakes, floods, hurricanes, or other natural catastrophes.
+  examples:
+    - Our facilities are located in regions subject to earthquakes and other natural disasters.
+    - A major natural disaster could disrupt our operations and damage our facilities.
+
+- slug: geopolitical_instability
+  group: geopolitical
+  name: Geopolitical Instability
+  description: Risk from political instability, conflict, or deteriorating international relations.
+  examples:
+    - Geopolitical tensions could disrupt our international operations.
+    - Armed conflict in a region where we operate could materially affect our business.
+
+- slug: sanctions_export_controls
+  group: geopolitical
+  name: Sanctions & Export Controls
+  description: Risk from trade sanctions, embargoes, or export control restrictions.
+  examples:
+    - Export control regulations could restrict our ability to sell certain products internationally.
+    - Sanctions imposed on countries where we operate could disrupt our business.
+
+- slug: political_instability_em
+  group: geopolitical
+  name: Political Instability in Emerging Markets
+  description: Risk specific to operating in politically unstable emerging markets.
+  examples:
+    - Political instability in emerging markets where we operate could disrupt our business.
+    - Changes in government policy in developing countries could adversely affect our operations.
+
+- slug: key_personnel
+  group: talent
+  name: Key Personnel Dependency
+  description: Risk of losing key executives or technical talent.
+  examples:
+    - Loss of key management personnel could adversely affect our business.
+    - Our success depends substantially on our ability to attract and retain key talent.
+
+- slug: labor_relations
+  group: talent
+  name: Labor Relations
+  description: Risk from unionization, strikes, or labor disputes.
+  examples:
+    - A work stoppage or labor dispute could disrupt our operations.
+    - Unionization efforts among our workforce could increase our labor costs.
+
+- slug: talent_acquisition
+  group: talent
+  name: Talent Acquisition & Retention
+  description: Risk of being unable to hire or retain skilled employees broadly.
+  examples:
+    - Competition for skilled employees in our industry is intense.
+    - Our inability to attract and retain qualified personnel could impede our growth.
+
+- slug: technological_obsolescence
+  group: tech_disruption
+  name: Technological Obsolescence
+  description: Risk of products or technology becoming outdated.
+  examples:
+    - Rapid technological change could render our products obsolete.
+    - Failure to keep pace with technological advances could erode our competitive position.
+
+- slug: ai_disruption
+  group: tech_disruption
+  name: AI / Automation Disruption
+  description: Risk from artificial intelligence or automation disrupting the business model.
+  examples:
+    - The rise of artificial intelligence technologies could disrupt our industry.
+    - Competitors' use of AI could erode our competitive advantages.
+
+- slug: disruptive_entrants
+  group: tech_disruption
+  name: Disruptive New Entrants
+  description: Risk from new business models or entrants disrupting the industry.
+  examples:
+    - New entrants with disruptive business models could erode our market position.
+    - Emerging competitors leveraging new technology could disintermediate our business.
+
+- slug: business_interruption
+  group: operational
+  name: Business Interruption
+  description: General operational disruption risk - facility outages, system failures, etc.
+  examples:
+    - A significant disruption to our operations could adversely affect our financial results.
+    - Our business could be materially affected by a prolonged outage at a critical facility.
+
+- slug: quality_defects
+  group: operational
+  name: Quality Control / Defects
+  description: Risk of defects, quality issues, or failures in products or services.
+  examples:
+    - Design or manufacturing defects in our products could lead to recalls and liability.
+    - Quality issues could damage our brand and result in costly remediation.
+
+- slug: outsourcing_third_party
+  group: operational
+  name: Third-Party Outsourcing Risk
+  description: Risk from reliance on third-party vendors, contractors, or service providers.
+  examples:
+    - We rely on third-party service providers whose failure to perform could harm our business.
+    - Outsourcing critical functions exposes us to risks outside our direct control.
+
+- slug: internal_controls
+  group: financial_reporting
+  name: Internal Controls Weakness
+  description: Risk of material weakness in internal controls over financial reporting.
+  examples:
+    - A material weakness in our internal controls could result in inaccurate financial reporting.
+    - Failure to maintain effective internal controls could harm investor confidence.
+
+- slug: goodwill_impairment
+  group: financial_reporting
+  name: Goodwill / Asset Impairment
+  description: Risk of impairment charges on goodwill or long-lived assets.
+  examples:
+    - We may be required to record significant impairment charges on goodwill.
+    - A decline in our market capitalization could trigger a goodwill impairment test failure.
+
+- slug: pension_obligations
+  group: financial_reporting
+  name: Pension & Benefit Obligations
+  description: Risk from underfunded pension plans or rising benefit costs.
+  examples:
+    - Our defined benefit pension plans may become underfunded, requiring additional contributions.
+    - Rising healthcare costs could increase our employee benefit obligations.
+
+- slug: brand_reputation
+  group: reputation
+  name: Brand & Reputation Risk
+  description: Risk of reputational harm affecting customer trust or brand value.
+  examples:
+    - Negative publicity could harm our brand and reduce customer demand.
+    - Damage to our reputation could have a long-term adverse effect on our business.
+
+- slug: esg_reputation
+  group: reputation
+  name: ESG / Sustainability Reputation
+  description: Risk from stakeholder scrutiny of environmental, social, or governance practices.
+  examples:
+    - Failure to meet stakeholder expectations on ESG matters could harm our reputation.
+    - Increased scrutiny of our environmental and social practices could affect investor sentiment.
+
+- slug: acquisition_integration
+  group: strategic
+  name: Acquisition & Integration Risk
+  description: Risk from M&A execution, integration, or failure to realize synergies.
+  examples:
+    - We may fail to successfully integrate acquired businesses.
+    - Acquisitions could disrupt our ongoing business and divert management attention.
+
+- slug: international_expansion
+  group: strategic
+  name: International Expansion Risk
+  description: Risk from expanding into new international markets.
+  examples:
+    - Expanding into new international markets involves significant risks and costs.
+    - We may be unable to successfully establish operations in new countries.
+
+- slug: ip_protection
+  group: strategic
+  name: Intellectual Property Protection
+  description: Risk of being unable to adequately protect proprietary technology or IP.
+  examples:
+    - We may be unable to adequately protect our intellectual property rights.
+    - Unauthorized use of our proprietary technology by competitors could harm our business.
+
+- slug: pandemic_health
+  group: operational
+  name: Pandemic / Public Health Risk
+  description: Risk from pandemics or public health emergencies disrupting operations or demand.
+  examples:
+    - A pandemic could significantly disrupt our operations and supply chain.
+    - Public health emergencies could reduce consumer demand for our products.
