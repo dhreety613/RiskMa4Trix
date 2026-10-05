@@ -239,8 +239,27 @@ doing again.
   section-boundary detection did; relying on boilerplate detection to
   catch it as the DB grows was the pragmatic call given time already
   spent on Phase 3.
-- [ ] Phase 5 - Risk drift (matcher, tone, dashboard)
-- [ ] Phase 5 - Risk drift (matcher, tone, dashboard)
+- [x] Phase 5 - Risk drift: matcher.py (Hungarian/`linear_sum_assignment`
+  on the cosine-similarity matrix between two consecutive filings' active
+  risks - NOT greedy nearest-neighbor, so one risk can't steal the best
+  match meant for a different risk; >=0.80 persisting, 0.65-0.80
+  reworded, below that or unmatched -> removed/new instead of forcing a
+  low-confidence pairing). tone.py (Loughran-McDonald neg/uncertainty
+  word ratios per filing per category, mean risk position, risk count -
+  see config_data/lm_dictionary/README.md: curated ~140/~100-word subset,
+  not the full published LM Master Dictionary, documented as a
+  limitation rather than silently presented as the real academic metric).
+  Both wired into extract_for_company; idempotent (drift clears existing
+  events for a from/to filing pair first, tone clears existing stats for
+  a filing first, before re-inserting).
+
+  Verified against real re-ingested AAPL data (5 filings, FY2021-2025):
+  4 consecutive year-pairs, overwhelmingly "persisting" (18-20 of ~20-25
+  risks each year) with small new/removed/reworded counts - exactly the
+  expected pattern for a stable large filer. Tone ratios landed in a
+  plausible 1-4% range for formal corporate risk language. Drift
+  dashboard itself (frontend heatmap/list/trend line) is Phase 7's job,
+  not built yet - this phase is the API-less backend computation only.
 - [ ] Phase 6 - Scoring (probability, impact, zones)
 - [ ] Phase 7 - Matrix + risk cards (frontend + API)
 - [ ] Phase 8 - Monte Carlo + mitigations

@@ -106,16 +106,22 @@ def extract_for_company(db: Session, company: Company) -> None:
     """
     from app.clean.boilerplate import compute_boilerplate_scores
     from app.clean.dedupe import dedupe_risks_for_filing
+    from app.drift.pipeline import compute_drift_for_company
+    from app.drift.tone import compute_tone_for_filing
 
     filings = db.query(Filing).filter(Filing.company_id == company.id).all()
     for filing in filings:
         extract_risks_for_filing(db, filing)
         dedupe_risks_for_filing(db, filing)
+        compute_tone_for_filing(db, filing)
     db.commit()
 
     # Cross-company by nature - a new company changes what counts as
     # "generic" for every OTHER company too, not just this one.
     compute_boilerplate_scores(db)
+    db.commit()
+
+    compute_drift_for_company(db, company)
     db.commit()
 
     classify_and_link_news(db, company)
