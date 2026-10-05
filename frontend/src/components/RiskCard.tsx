@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-import { apiGet } from '../api'
-import type { RiskCard as RiskCardType } from '../types'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { apiGet, apiPost } from '../api'
+import type { MonteCarloRun, RiskCard as RiskCardType } from '../types'
 import { ZONE_COLOR } from '../zoneColors'
 
 interface Props {
@@ -8,10 +8,18 @@ interface Props {
   onClose: () => void
 }
 
+function fmtM(usd: number): string {
+  return `$${(usd / 1e6).toFixed(1)}M`
+}
+
 export default function RiskCard({ riskId, onClose }: Props) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['risk', riskId],
     queryFn: () => apiGet<RiskCardType>(`/risks/${riskId}`),
+  })
+
+  const monteCarlo = useMutation({
+    mutationFn: () => apiPost<MonteCarloRun>(`/risks/${riskId}/montecarlo`, {}),
   })
 
   return (
@@ -114,7 +122,8 @@ export default function RiskCard({ riskId, onClose }: Props) {
 
             <button
               type="button"
-              disabled={!data.can_run_monte_carlo}
+              disabled={!data.can_run_monte_carlo || monteCarlo.isPending}
+              onClick={() => monteCarlo.mutate()}
               title={
                 data.can_run_monte_carlo
                   ? 'Run Monte Carlo simulation'
@@ -122,8 +131,44 @@ export default function RiskCard({ riskId, onClose }: Props) {
               }
               className="mt-6 w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
             >
-              Run Monte Carlo {!data.can_run_monte_carlo && '(Treat-zone risks only)'}
+              {monteCarlo.isPending
+                ? 'Running 100,000 simulations...'
+                : `Run Monte Carlo ${!data.can_run_monte_carlo ? '(Treat-zone risks only)' : ''}`}
             </button>
+
+            {monteCarlo.isError && (
+              <p className="mt-2 text-sm text-red-600">Simulation failed - try again.</p>
+            )}
+
+            {monteCarlo.data && (
+              <div className="mt-4 rounded-md border border-slate-200 p-3 text-sm">
+                <p className="font-medium text-slate-900">
+                  {monteCarlo.data.n_sims.toLocaleString()} simulated years
+                </p>
+                <dl className="mt-2 grid grid-cols-2 gap-2">
+                  <div>
+                    <dt className="text-slate-500">Mean annual loss</dt>
+                    <dd className="font-medium">{fmtM(monteCarlo.data.mean)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">Median</dt>
+                    <dd className="font-medium">{fmtM(monteCarlo.data.median)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">VaR 95 / 99</dt>
+                    <dd className="font-medium">
+                      {fmtM(monteCarlo.data.var95)} / {fmtM(monteCarlo.data.var99)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">CVaR 95 / 99</dt>
+                    <dd className="font-medium">
+                      {fmtM(monteCarlo.data.cvar95)} / {fmtM(monteCarlo.data.cvar99)}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            )}
           </>
         )}
       </div>

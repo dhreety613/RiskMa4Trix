@@ -1,0 +1,155 @@
+# Mitigation playbooks for Monte Carlo (montecarlo/mitigation.py).
+#
+# Keyed by taxonomy GROUP (18), not individual category (54) - a
+# documented scope simplification given time, same as everywhere else
+# in this build. A category inherits its group's playbook via
+# taxonomy.yaml's group field.
+#
+# effectiveness_frequency / effectiveness_severity are [min, max] ranges
+# for how much a control can plausibly cut, respectively, the event
+# frequency (lambda) and the severity median - user-adjustable sliders
+# in the UI, not fixed values. All "assumption" sourced - there is no
+# empirical control-effectiveness dataset behind these numbers.
+
+- group: market
+  actions:
+    - name: Diversify revenue across products/geographies
+      control_type: reduce
+      effectiveness_frequency: [0.05, 0.15]
+      effectiveness_severity: [0.10, 0.25]
+    - name: Dynamic pricing / hedging of margin exposure
+      control_type: reduce
+      effectiveness_severity: [0.05, 0.20]
+
+- group: credit
+  actions:
+    - name: Tighten credit terms / collections process
+      control_type: reduce
+      effectiveness_frequency: [0.10, 0.25]
+    - name: Credit insurance / factoring
+      control_type: transfer
+      effectiveness_severity: [0.30, 0.60]
+
+- group: liquidity
+  actions:
+    - name: Maintain larger revolving credit facility
+      control_type: reduce
+      effectiveness_severity: [0.15, 0.35]
+    - name: Extend debt maturity ladder
+      control_type: reduce
+      effectiveness_frequency: [0.05, 0.15]
+
+- group: fx
+  actions:
+    - name: FX forward/option hedging program
+      control_type: transfer
+      effectiveness_severity: [0.30, 0.70]
+    - name: Natural hedging via local-currency sourcing
+      control_type: reduce
+      effectiveness_frequency: [0.05, 0.15]
+
+- group: interest_rate
+  actions:
+    - name: Interest rate swaps to fix floating exposure
+      control_type: transfer
+      effectiveness_severity: [0.30, 0.70]
+
+- group: regulatory
+  actions:
+    - name: Dedicated compliance/regulatory affairs function
+      control_type: prevent
+      effectiveness_frequency: [0.10, 0.25]
+    - name: Regulatory insurance / legal reserves
+      control_type: transfer
+      effectiveness_severity: [0.10, 0.25]
+
+- group: cyber
+  actions:
+    - name: Security program uplift (MFA, segmentation, monitoring)
+      control_type: prevent
+      effectiveness_frequency: [0.20, 0.45]
+    - name: Cyber insurance
+      control_type: transfer
+      effectiveness_severity: [0.20, 0.50]
+
+- group: supply_chain
+  actions:
+    - name: Dual/multi-sourcing of critical components
+      control_type: reduce
+      effectiveness_frequency: [0.15, 0.35]
+    - name: Safety stock / buffer inventory
+      control_type: reduce
+      effectiveness_severity: [0.10, 0.30]
+
+- group: concentration
+  actions:
+    - name: Diversify customer/supplier/product base
+      control_type: reduce
+      effectiveness_frequency: [0.10, 0.25]
+      effectiveness_severity: [0.10, 0.25]
+
+- group: litigation
+  actions:
+    - name: Litigation reserves / insurance
+      control_type: transfer
+      effectiveness_severity: [0.15, 0.35]
+    - name: Proactive legal/compliance review program
+      control_type: prevent
+      effectiveness_frequency: [0.05, 0.15]
+
+- group: climate
+  actions:
+    - name: Property/catastrophe insurance
+      control_type: transfer
+      effectiveness_severity: [0.30, 0.60]
+    - name: Facility hardening / geographic diversification
+      control_type: reduce
+      effectiveness_frequency: [0.05, 0.15]
+
+- group: geopolitical
+  actions:
+    - name: Political risk insurance
+      control_type: transfer
+      effectiveness_severity: [0.20, 0.45]
+    - name: Reduce footprint in highest-risk jurisdictions
+      control_type: reduce
+      effectiveness_frequency: [0.10, 0.25]
+
+- group: talent
+  actions:
+    - name: Succession planning / retention programs
+      control_type: prevent
+      effectiveness_frequency: [0.10, 0.25]
+
+- group: tech_disruption
+  actions:
+    - name: R&D investment in next-generation capability
+      control_type: reduce
+      effectiveness_frequency: [0.05, 0.20]
+      effectiveness_severity: [0.05, 0.15]
+
+- group: operational
+  actions:
+    - name: Business continuity / disaster recovery program
+      control_type: reduce
+      effectiveness_frequency: [0.10, 0.20]
+      effectiveness_severity: [0.15, 0.35]
+
+- group: financial_reporting
+  actions:
+    - name: Strengthen internal controls / SOX program
+      control_type: prevent
+      effectiveness_frequency: [0.15, 0.35]
+
+- group: reputation
+  actions:
+    - name: Crisis communications readiness / brand monitoring
+      control_type: reduce
+      effectiveness_severity: [0.10, 0.25]
+
+- group: strategic
+  actions:
+    - name: Formal M&A/expansion due-diligence and integration playbook
+      control_type: prevent
+      effectiveness_frequency: [0.10, 0.25]
+      effectiveness_severity: [0.10, 0.20]

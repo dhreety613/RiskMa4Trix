@@ -313,5 +313,37 @@ doing again.
   `/companies/{ticker}/drift` API exists, nothing renders it) and a
   Methodology page. Both are small additions, not a new phase; deferred
   for time, listed here so they're not forgotten.
-- [ ] Phase 8 - Monte Carlo + mitigations
+- [x] Phase 8 - Monte Carlo + mitigations: montecarlo/simulate.py
+  (frequency-severity: N ~ Poisson(lambda), lambda = -ln(1-P); severity
+  ~ lognormal(median=Impact$, sigma from q95/median); annual loss = sum
+  of N severity draws; vectorized with `default_rng(seed)`). Defaults
+  auto-filled from the risk's RiskScore (p_mean, impact_usd), all
+  overridable via the API request body. montecarlo/mitigation.py
+  (config_data/mitigations.yaml - 18 group-level, not per-category,
+  playbooks; user-set effectiveness fractions scale p_annual and
+  median_severity down before re-simulating). POST /risks/{id}/montecarlo
+  (400 if the risk isn't Treat-zone, enforced server-side not just in
+  the UI) + GET /risks/{id}/mc-runs persists params/seed/result summary/
+  histogram/exceedance curve - never raw samples, per spec.
+
+  q95 (the "measured" tail severity the spec's sigma formula wants) has
+  no real data behind it in this build - defaulted to
+  median_severity * 3.0 (DEFAULT_Q95_MULTIPLIER, an assumption, not a
+  measured quantile) unless the caller supplies sigma directly.
+
+  Tests include the two spec-required checks: same-seed reproducibility,
+  and simulated mean vs the analytic compound-Poisson mean
+  (lambda * median * exp(sigma^2/2), via Wald's identity) within 5% at
+  n=200,000. Frontend: "Run Monte Carlo" button in RiskCard actually
+  calls the API and renders mean/median/VaR95/VaR99/CVaR95/CVaR99 - no
+  mitigation-slider UI yet (API supports it; only the backend default
+  run is wired up from the UI side - a real time-vs-scope cut, not an
+  oversight).
+
+  Verified against a real Treat-zone AAPL risk (litigation,
+  p_mean≈0.31, impact_usd≈$2.45B): default run gave mean≈$1.11B,
+  var95≈$5.79B, var99≈$10.4B, matching the analytic
+  lambda*median*exp(sigma^2/2) estimate; a mitigated re-run (10%
+  frequency + 25% severity reduction) correctly came back lower on
+  every statistic. Both runs persisted and retrievable via mc-runs.
 - [ ] Phase 9 - Deploy (Render) + docs (README, METHODOLOGY, VALIDATION)

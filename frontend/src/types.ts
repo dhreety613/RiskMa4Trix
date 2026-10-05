@@ -35,6 +35,22 @@ export interface RiskCard {
   can_run_monte_carlo: boolean
 }
 
+export interface MonteCarloRun {
+  id: number
+  params: Record<string, unknown>
+  seed: number
+  n_sims: number
+  mean: number
+  median: number
+  var95: number
+  var99: number
+  cvar95: number
+  cvar99: number
+  hist_bins: { edges: number[]; counts: number[] }
+  exceedance: { loss: number[]; prob: number[] }
+  mitigation: Record<string, unknown> | null
+}
+
 export interface IngestAck {
   ticker: string
   status: string
