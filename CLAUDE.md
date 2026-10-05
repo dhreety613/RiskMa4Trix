@@ -289,6 +289,29 @@ doing again.
   terminate - consistent with no current news evidence or "new"-drift
   risks pushing any single risk's probability high enough to combine
   with high impact simultaneously.
-- [ ] Phase 7 - Matrix + risk cards (frontend + API)
+- [x] Phase 7 - Matrix + risk cards: API (GET /companies/{ticker}/matrix
+  with year/zone/category/include_generic filters, GET /companies/{ticker}/drift,
+  GET /risks/{id}) + frontend (Company page: ticker route, filter row,
+  MatrixChart, RiskCard side panel). Verified backend endpoints directly
+  against real re-ingested AAPL data; frontend verified via `tsc -b`,
+  `npm run build`, and `npm run lint` (oxlint) only - **no visual
+  browser check was done**, since this CLI session has no browser-
+  automation tooling available (confirmed via ToolSearch - only
+  WebFetch, which explicitly doesn't support localhost). Said so
+  explicitly rather than claiming a visual pass; worth a real look in
+  an actual browser next session before trusting the chart's layout.
+
+  Zone colors use the dataviz skill's fixed status palette (good/
+  warning/serious/critical mapped onto tolerate/treat/transfer/
+  terminate - a deliberate fit, since 4T zones ARE a severity
+  escalation) - see frontend/src/zoneColors.ts. P_THRESHOLD/
+  IMPACT_THRESHOLD are hand-duplicated from scoring/zones.py rather than
+  served by the API - drifts silently if one changes without the other;
+  worth exposing via a /methodology endpoint later instead.
+
+  Not built yet: the drift dashboard UI (heatmap/list/trend line - the
+  `/companies/{ticker}/drift` API exists, nothing renders it) and a
+  Methodology page. Both are small additions, not a new phase; deferred
+  for time, listed here so they're not forgotten.
 - [ ] Phase 8 - Monte Carlo + mitigations
 - [ ] Phase 9 - Deploy (Render) + docs (README, METHODOLOGY, VALIDATION)
