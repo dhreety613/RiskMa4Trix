@@ -98,13 +98,24 @@ def extract_risks_for_filing(db: Session, filing: Filing) -> list[Risk]:
 
 
 def extract_for_company(db: Session, company: Company) -> None:
-    """Runs extraction for every filing of a company, then classifies
-    and links its news. Called right after ingestion so a newly-ingested
-    ticker has risks (not just raw filings) to show in the matrix.
+    """Runs extraction for every filing of a company, dedupes within
+    each filing, recomputes cross-company boilerplate scores, then
+    classifies and links its news. Called right after ingestion so a
+    newly-ingested ticker has risks (not just raw filings) to show in
+    the matrix.
     """
+    from app.clean.boilerplate import compute_boilerplate_scores
+    from app.clean.dedupe import dedupe_risks_for_filing
+
     filings = db.query(Filing).filter(Filing.company_id == company.id).all()
     for filing in filings:
         extract_risks_for_filing(db, filing)
+        dedupe_risks_for_filing(db, filing)
+    db.commit()
+
+    # Cross-company by nature - a new company changes what counts as
+    # "generic" for every OTHER company too, not just this one.
+    compute_boilerplate_scores(db)
     db.commit()
 
     classify_and_link_news(db, company)
