@@ -346,4 +346,61 @@ doing again.
   lambda*median*exp(sigma^2/2) estimate; a mitigated re-run (10%
   frequency + 25% severity reduction) correctly came back lower on
   every statistic. Both runs persisted and retrievable via mc-runs.
-- [ ] Phase 9 - Deploy (Render) + docs (README, METHODOLOGY, VALIDATION)
+- [x] Phase 9 - Deploy (Render) + docs: README.md (full rewrite - problem
+  statement, solution, tech stack, structure tree, per-module code
+  snippets, a choices-vs-alternatives table, bugs fixed, limitations,
+  scaling), docs/METHODOLOGY.md (every formula from Phases 2-8 in one
+  place), LICENSE (MIT), render.yaml.
+
+  **Render API findings** (used the API key directly, not the
+  dashboard): there is NO "create Blueprint from a repo" endpoint - only
+  validate/update/list for Blueprints that already exist, so this was
+  deployed as three direct resource creations instead of a Blueprint
+  sync: `POST /v1/postgres` (plan: free, version 16), `POST /v1/services`
+  type `web_service` (plan: free, runtime docker,
+  `dockerfilePath: ./backend/Dockerfile`, `dockerContext: backend` -
+  note `runtime`/`plan`/`region`/`envSpecificDetails` all nest INSIDE
+  `serviceDetails`, not at the request root - the first attempt without
+  that nesting failed with "must include serviceDetails when creating a
+  non-static service"), `POST /v1/services` type `static_site`
+  (`rootDir: frontend`, `buildCommand: npm ci && npm run build`,
+  `publishPath: dist`). Public GitHub repos work via plain URL, no OAuth
+  connection needed. Owner/workspace ID comes from `GET /v1/owners`.
+  `render.yaml` documents the same topology as infra-as-code (for a
+  future dashboard-based Blueprint sync) even though it wasn't what
+  actually ran.
+
+  Deployed and verified: `GET /health` -> `{"status":"ok"}`; frontend
+  static site live and serving; `POST /companies/AAPL/ingest` -> all 5
+  real filings fetched and persisted with real Item 1A text (confirmed
+  via `GET /companies/AAPL/filings`).
+
+  **Real finding, not yet resolved**: full extraction (embedding +
+  classifying every risk paragraph) for a company did not visibly
+  complete on the free-tier instance within this session's observation
+  window, across repeated re-triggers. Logs reliably show
+  `Ingested AAPL: 5 filings` immediately followed by a restart
+  (`Detected a new open port HTTP:8000` - the Dockerfile's boot sequence
+  running again) with NO `Extracted N risks for filing...` line ever
+  appearing in between - the process is consistently dying right at (or
+  inside) the first embedding call. Only ONE deploy is ever recorded
+  (confirmed via `GET /v1/services/{id}/deploys`), so these are
+  mid-session container restarts, not redeploys. Pinging `/health`
+  repeatedly to keep the instance "active" from an HTTP standpoint did
+  NOT prevent the next restart, which points more specifically at an
+  OOM kill during the embedding model's memory footprint on the free
+  tier's 512MB RAM than at pure HTTP-idle spin-down (idle spin-down
+  would have been avoidable with traffic; this wasn't). Also separately
+  noticed: the fastembed model's "Fetching 5 files" download log
+  appeared AT RUNTIME despite the Dockerfile's build-time pre-download
+  step - the model cache isn't surviving across these restarts, so each
+  one re-downloads before extraction can even start, compounding the
+  problem. Either way, the fix is the same: move ingestion off in-
+  process FastAPI `BackgroundTasks` onto a real queue/worker (already
+  identified independently in the spec's own Phase 2 section, now
+  additionally confirmed necessary by this real observation) and/or a
+  higher-memory instance tier - documented in the README's Limitations
+  and Scaling sections. Locally (Docker Desktop, no memory ceiling like
+  this), the exact same pipeline code completes this step reliably in
+  well under a minute per filing - confirmed repeatedly throughout
+  Phases 2-8.
